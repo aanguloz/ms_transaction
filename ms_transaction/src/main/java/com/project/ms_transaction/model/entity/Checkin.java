@@ -13,13 +13,16 @@ import java.util.Set;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CheckIn {
+public class Checkin {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @Column(unique = true, nullable = false)
     String code;
 
+    String numberDocument;
     String description;
 
     @OneToOne(fetch = FetchType.LAZY)

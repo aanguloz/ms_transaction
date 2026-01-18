@@ -17,7 +17,10 @@ import java.util.Set;
 @NoArgsConstructor
 public class Warehouse {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
+
     String code;
     String name;
     String description;

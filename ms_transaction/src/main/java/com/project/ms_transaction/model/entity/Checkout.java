@@ -15,6 +15,8 @@ import java.util.Set;
 @NoArgsConstructor
 public class Checkout {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @Column(unique = true, nullable = false)

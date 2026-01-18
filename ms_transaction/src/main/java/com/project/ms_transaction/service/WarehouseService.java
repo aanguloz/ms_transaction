@@ -9,7 +9,7 @@ public interface WarehouseService {
 
     void createWareHouse(WareHouseReqDTO wareHouseReqDTO);
 
-    void modifyWarehouse(WareHouseReqDTO wareHouseReqDTO);
+    void modifyWarehouse(Long id, WareHouseReqDTO wareHouseReqDTO);
 
     List<WarehouseRespDTO> warehouseList(String filter);
 

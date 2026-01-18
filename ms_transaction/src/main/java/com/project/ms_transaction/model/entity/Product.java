@@ -17,7 +17,10 @@ import java.util.Set;
 @NoArgsConstructor
 public class Product {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
+
     String name;
     String description;
     String expirationDate;

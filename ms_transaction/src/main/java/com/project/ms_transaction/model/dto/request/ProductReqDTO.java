@@ -16,5 +16,6 @@ public class ProductReqDTO {
     Double price;
 
     Long warehouseId;
+    String documentRef;
 
 }

@@ -14,6 +14,8 @@ import java.time.Instant;
 @NoArgsConstructor
 public class Inventory {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

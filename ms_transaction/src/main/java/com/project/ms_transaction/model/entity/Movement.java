@@ -4,7 +4,6 @@ import com.project.ms_transaction.model.enums.MovementType;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 
 @Entity
@@ -16,6 +15,8 @@ import java.time.Instant;
 @NoArgsConstructor
 public class Movement {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @Enumerated(EnumType.STRING)
@@ -23,7 +24,7 @@ public class Movement {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "checkin_id")
-    CheckIn checkIn;
+    Checkin checkIn;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "checkout_id")
@@ -37,9 +38,9 @@ public class Movement {
     @JoinColumn(name = "warehouse_destiny_id")
     Warehouse warehouseDestiny;
 
-    Integer quantity;
-    BigDecimal unitCost;
-    BigDecimal unitPrice;
+//    Integer quantity;
+//    BigDecimal unitCost;
+//    BigDecimal unitPrice;
 
     String documentReference;
     String observation;
