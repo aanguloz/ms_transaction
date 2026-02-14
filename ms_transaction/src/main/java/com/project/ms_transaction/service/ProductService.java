@@ -1,11 +1,17 @@
 package com.project.ms_transaction.service;
 
 import com.project.ms_transaction.model.dto.request.ProductReqDTO;
+import com.project.ms_transaction.model.dto.response.ProductRespDTO;
+import com.project.ms_transaction.model.entity.Product;
+
+import java.util.List;
 
 public interface ProductService {
 
-    void registerProduct(ProductReqDTO productReqDTO);
+    Product registerProduct(ProductReqDTO productReqDTO);
 
-    void updateProduct(ProductReqDTO productReqDTO);
+    Product updateProduct(ProductReqDTO productReqDTO);
+
+    List<ProductRespDTO> listProductByWarehouse(String filter);
 
 }
