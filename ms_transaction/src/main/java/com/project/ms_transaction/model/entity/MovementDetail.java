@@ -28,7 +28,7 @@ public class MovementDetail {
 
     @ManyToOne
     @JoinColumn(name = "product_id")
-    Product product;
+    ProductWarehouse productWarehouse;
 
     String productLocation;
     Integer quantity;

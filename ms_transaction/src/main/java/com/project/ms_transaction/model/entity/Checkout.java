@@ -34,6 +34,6 @@ public class Checkout {
             joinColumns = @JoinColumn(name = "checkout_id"),
             inverseJoinColumns = @JoinColumn(name = "product_id")
     )
-    private Set<Product> products = new HashSet<>();
+    private Set<ProductWarehouse> productWarehouses = new HashSet<>();
 
 }

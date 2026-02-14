@@ -15,20 +15,26 @@ import java.util.Set;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Warehouse {
+public class ProductWarehouse {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    String code;
     String name;
     String description;
+    String expirationDate;
+    Double price;
 
-    @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "productWarehouse", cascade = CascadeType.ALL, orphanRemoval = true)
     List<Inventory> inventories = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "warehouses", fetch = FetchType.LAZY)
-    Set<ProductWarehouse> productWarehouses = new HashSet<>();
+    @ManyToMany
+    @JoinTable(
+            name = "product_warehouse",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "warehouse_id")
+    )
+    Set<Warehouse> warehouses = new HashSet<>();
 
 }

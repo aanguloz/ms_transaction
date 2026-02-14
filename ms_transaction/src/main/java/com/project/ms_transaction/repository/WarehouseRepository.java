@@ -16,7 +16,7 @@ public interface WarehouseRepository extends JpaRepository<Warehouse, Long> {
     @Query(value = """
     select p.id, p.name , w.id , w.code, w.name
     from public.product_warehouse pw
-    left join public.product p on p.id = pw.product_id
+    left join public.productWarehouse p on p.id = pw.product_id
     left join public.warehouse w on w.id = pw.warehouse_id
     where (
         :filter is null or :filter = ''
