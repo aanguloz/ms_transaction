@@ -19,6 +19,7 @@ public class Product {
 
     String name;
     String description;
+    Boolean isDeleted = false;
 
     public Product(String name, String description) {
         this.name = name;

@@ -3,14 +3,16 @@ package com.project.ms_transaction.service;
 import com.project.ms_transaction.model.dto.request.ProductReqDTO;
 import com.project.ms_transaction.model.dto.response.ProductRespDTO;
 
+import java.util.List;
+
 public interface ProductService {
 
     ProductRespDTO createProduct(ProductReqDTO productReqDTO);
 
     ProductRespDTO updateProduct(ProductReqDTO productReqDTO);
 
-    ProductRespDTO deleteProduct(Long productId);
+    void deleteProduct(Long productId);
 
-    ProductRespDTO getAllProducts(ProductReqDTO productReqDTO);
+    List<ProductRespDTO> getAllProducts();
 
 }

@@ -8,7 +8,9 @@ import com.project.ms_transaction.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,12 +46,25 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductRespDTO deleteProduct(Long productId) {
-        return null;
+    public void deleteProduct(Long productId) {
+
+        Optional<Product> productDB = productRepository.findById(productId);
+        if (productDB.isPresent())
+        {
+            Product product = (Product) productDB.get();
+            product.setIsDeleted(true);
+            productRepository.save(product);
+        }
     }
 
     @Override
-    public ProductRespDTO getAllProducts(ProductReqDTO productReqDTO) {
-        return null;
+    public List<ProductRespDTO> getAllProducts() {
+        return productRepository.findAll().stream()
+                .map(dto -> new ProductRespDTO(
+                        dto.getId(),
+                        dto.getName(),
+                        dto.getDescription()
+                        )
+                ).collect(Collectors.toList());
     }
 }
