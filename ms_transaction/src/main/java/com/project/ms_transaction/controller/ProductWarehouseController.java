@@ -41,4 +41,17 @@ public class ProductWarehouseController {
         }
     }
 
+    @PutMapping("/")
+    ResponseEntity<ApiResponseDTO<?>> updateProduct(
+            @RequestBody ProductWarehouseReqDTO productWarehouseReqDTO
+    ){
+        try{
+            productWarehouseService.modifyProduct(productWarehouseReqDTO);
+            return ResponseEntity.status(200).body(new ApiResponseDTO<>(true, "ProductWarehouse was updated.", null));
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(500).body(new ApiResponseDTO<>(false, e.getMessage(), null));
+        }
+    }
+
 }

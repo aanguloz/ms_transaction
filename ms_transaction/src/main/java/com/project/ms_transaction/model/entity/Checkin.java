@@ -33,7 +33,7 @@ public class Checkin {
     @JoinTable(
             name = "checkin_products",
             joinColumns = @JoinColumn(name = "checkin_id"),
-            inverseJoinColumns = @JoinColumn(name = "product_id")
+            inverseJoinColumns = @JoinColumn(name = "product_warehouse_id")
     )
     private Set<ProductWarehouse> productWarehouses = new HashSet<>();
 

@@ -55,7 +55,7 @@ public class ProductWarehouseServiceImpl implements ProductWarehouseService {
     }
 
     @Override
-    public ProductWarehouse updateProduct(ProductWarehouseReqDTO productWarehouseReqDTO) {
+    public ProductWarehouse modifyProduct(ProductWarehouseReqDTO productWarehouseReqDTO) {
         if (productWarehouseReqDTO.getId() == null) {
             throw new IllegalArgumentException("ID del producto es requerido para actualización");
         }
@@ -67,8 +67,14 @@ public class ProductWarehouseServiceImpl implements ProductWarehouseService {
     @Transactional(readOnly = true)
     public List<ProductWarehouseRespDTO> listProductByWarehouse(String filter) {
 
-        return productWarehouseRepository.findAll().stream()
-                .map(this::convertToRespDTO)
+        List<Object[]> results = productWarehouseRepository.listProductByWarehouse(filter);
+
+        // Agrupar por ID de producto
+        Map<Long, List<Object[]>> groupedByProduct = results.stream()
+                .collect(Collectors.groupingBy(row -> (Long) row[0]));
+
+        return groupedByProduct.entrySet().stream()
+                .map(entry -> convertToRespDTO(entry.getValue()))
                 .collect(Collectors.toList());
     }
 
@@ -170,27 +176,59 @@ public class ProductWarehouseServiceImpl implements ProductWarehouseService {
         }
     }
 
-    private ProductWarehouseRespDTO convertToRespDTO(ProductWarehouse productWarehouse) {
+    private ProductWarehouseRespDTO convertToRespDTO(List<Object[]> productRows) {
         ProductWarehouseRespDTO dto = new ProductWarehouseRespDTO();
-        dto.setId(productWarehouse.getId());
-        dto.setName(productWarehouse.getName());
-        dto.setDescription(productWarehouse.getDescription());
-        dto.setExpirationDate(productWarehouse.getExpirationDate());
-        dto.setPrice(productWarehouse.getPrice());
 
-        if (productWarehouse.getWarehouses() != null) {
-            dto.setWarehouseIds(productWarehouse.getWarehouses().stream()
-                    .map(Warehouse::getId)
-                    .collect(Collectors.toList()));
-        }
+        // Primera fila: datos del producto
+        Object[] firstRow = productRows.get(0);
+        dto.setId(safeCast(firstRow[0], Long.class));
+        dto.setName(safeCast(firstRow[1], String.class));
+        dto.setDescription(safeCast(firstRow[2], String.class));
+        dto.setExpirationDate(formatDate(firstRow[3])); // Manejo seguro de fechas
+        dto.setPrice(safeCast(firstRow[4], Double.class));
 
-        if (productWarehouse.getInventories() != null) {
-            dto.setInventories(productWarehouse.getInventories().stream()
-                    .map(this::convertInventoryToDTO)
-                    .collect(Collectors.toList()));
-        }
+        // Agrupar IDs de almacenes (columna 5 = w.id)
+        List<Long> warehouseIds = productRows.stream()
+                .map(row -> safeCast(row[5], Long.class))
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+        dto.setWarehouseIds(warehouseIds);
+
+        // Opcional: Cargar inventarios si los necesitas
+        // dto.setInventories(loadInventoriesForProduct(dto.getId()));
 
         return dto;
+    }
+
+    private <T> T safeCast(Object value, Class<T> type) {
+        if (value == null) return null;
+        if (type.isInstance(value)) return type.cast(value);
+
+        // Conversión de Number a String si es necesario
+        if (type == String.class && value instanceof Number) {
+            return type.cast(value.toString());
+        }
+        // Conversión de String a Number si es necesario
+        if (type == Double.class && value instanceof String) {
+            try {
+                return type.cast(Double.valueOf((String) value));
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    private String formatDate(Object dateValue) {
+        if (dateValue == null) return null;
+        if (dateValue instanceof java.sql.Date) {
+            return ((java.sql.Date) dateValue).toString();
+        }
+        if (dateValue instanceof java.time.LocalDate) {
+            return ((java.time.LocalDate) dateValue).toString();
+        }
+        return dateValue.toString();
     }
 
     private InventoryReqDTO convertInventoryToDTO(Inventory inventory) {

@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
 
-    ProductRepository productRepository;
+    private final ProductRepository productRepository;
 
     @Override
     public ProductRespDTO createProduct(ProductReqDTO productReqDTO) {
@@ -31,8 +31,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductRespDTO updateProduct(ProductReqDTO productReqDTO) {
-        Optional<Product> existingProductOpt = productRepository.findByName(productReqDTO.getName());
+    public ProductRespDTO updateProduct(Long idProduct, ProductReqDTO productReqDTO) {
+        Optional<Product> existingProductOpt = productRepository.findById(idProduct);
         if (existingProductOpt.isPresent()) {
             Product existingProduct = existingProductOpt.get();
             existingProduct.setName(productReqDTO.getName());
@@ -47,13 +47,13 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deleteProduct(Long productId) {
-
         Optional<Product> productDB = productRepository.findById(productId);
-        if (productDB.isPresent())
-        {
-            Product product = (Product) productDB.get();
+        if (productDB.isPresent()) {
+            Product product = productDB.get();
             product.setIsDeleted(true);
             productRepository.save(product);
+        } else {
+            throw new RuntimeException("Product with id " + productId + " does not exist.");
         }
     }
 
@@ -61,9 +61,9 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductRespDTO> getAllProducts() {
         return productRepository.findAll().stream()
                 .map(dto -> new ProductRespDTO(
-                        dto.getId(),
-                        dto.getName(),
-                        dto.getDescription()
+                                dto.getId(),
+                                dto.getName(),
+                                dto.getDescription()
                         )
                 ).collect(Collectors.toList());
     }

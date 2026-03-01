@@ -19,7 +19,7 @@ public class Inventory {
     Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
+    @JoinColumn(name = "product_warehouse_id", nullable = false)
     ProductWarehouse productWarehouse;
 
     @ManyToOne(fetch = FetchType.LAZY)

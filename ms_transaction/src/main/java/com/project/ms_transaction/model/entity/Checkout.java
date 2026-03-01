@@ -32,7 +32,7 @@ public class Checkout {
     @JoinTable(
             name = "checkout_products",
             joinColumns = @JoinColumn(name = "checkout_id"),
-            inverseJoinColumns = @JoinColumn(name = "product_id")
+            inverseJoinColumns = @JoinColumn(name = "product_warehouse_id")
     )
     private Set<ProductWarehouse> productWarehouses = new HashSet<>();
 

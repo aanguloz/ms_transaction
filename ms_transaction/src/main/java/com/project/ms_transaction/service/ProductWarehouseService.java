@@ -10,7 +10,7 @@ public interface ProductWarehouseService {
 
     ProductWarehouse registerProduct(ProductWarehouseReqDTO productWarehouseReqDTO);
 
-    ProductWarehouse updateProduct(ProductWarehouseReqDTO productWarehouseReqDTO);
+    ProductWarehouse modifyProduct(ProductWarehouseReqDTO productWarehouseReqDTO);
 
     List<ProductWarehouseRespDTO> listProductByWarehouse(String filter);
 

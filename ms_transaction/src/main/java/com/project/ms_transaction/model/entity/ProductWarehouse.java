@@ -31,8 +31,8 @@ public class ProductWarehouse {
 
     @ManyToMany
     @JoinTable(
-            name = "product_warehouse",
-            joinColumns = @JoinColumn(name = "product_id"),
+            name = "product_warehouse_warehouse",
+            joinColumns = @JoinColumn(name = "product_warehouse_id"),
             inverseJoinColumns = @JoinColumn(name = "warehouse_id")
     )
     Set<Warehouse> warehouses = new HashSet<>();
