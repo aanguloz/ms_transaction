@@ -3,13 +3,12 @@ package com.project.ms_transaction.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigDecimal;
-
 @Entity
 @Table
 @Data
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class MovementDetail {
@@ -32,8 +31,8 @@ public class MovementDetail {
 
     String productLocation;
     Integer quantity;
-    BigDecimal unitCost;
-    BigDecimal unitPrice;
+    Double unitCost;
+    Double unitPrice;
 
     String expirationDate;
 

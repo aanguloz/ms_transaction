@@ -1,25 +1,24 @@
 package com.project.ms_transaction.model.dto.request;
 
-import com.project.ms_transaction.model.dto.CheckinProductEntryDTO;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.project.ms_transaction.model.dto.CheckInItemDTO;
+import lombok.*;
 
 import java.util.List;
 
 @Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class CheckInReqDTO {
 
-    String code;
-    String numberDocument;
-    String description;
+    private String code;
+    private String numberDocument;
+    private String description;
 
-    Long documentId;
+    private Long documentId;
 
-    List<CheckinProductEntryDTO> products;
+    private List<CheckInItemDTO> items;
 
 }

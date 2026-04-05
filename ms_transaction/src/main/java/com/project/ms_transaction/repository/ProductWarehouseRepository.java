@@ -10,7 +10,7 @@ import java.util.List;
 public interface ProductWarehouseRepository extends JpaRepository<ProductWarehouse, Long> {
 
     @Query(value = """
-        select pw.id, pw.name, pw.description, pw,expiration_date, pw.price, w.id, w.code, w.name
+        select pw.id, pw.name, pw.description, pw.expiration_date, pw.price, w.id, w.code, w.name
         from product_warehouse_warehouse pww
         left join product_warehouse pw on pw.id = pww.product_warehouse_id
         left join warehouse w on w.id = pww.warehouse_id

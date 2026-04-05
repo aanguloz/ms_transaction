@@ -1,13 +1,18 @@
 package com.project.ms_transaction.model.entity;
 
+import com.project.ms_transaction.model.enums.DocumentType;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table
 @Data
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Document {
@@ -20,5 +25,11 @@ public class Document {
     String codeSunat;
     String name;
     String description;
+
+    @Enumerated(EnumType.STRING)
+    DocumentType type;
+
+    @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval = false)
+    private List<Checkin> checkins = new ArrayList<>();
 
 }

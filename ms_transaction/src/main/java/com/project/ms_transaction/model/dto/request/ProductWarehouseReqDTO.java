@@ -1,14 +1,15 @@
 package com.project.ms_transaction.model.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
 @Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class ProductWarehouseReqDTO {
 
     private Long id; // Para actualización
@@ -17,10 +18,8 @@ public class ProductWarehouseReqDTO {
     private String expirationDate;
     private Double price;
 
-    // Relación @ManyToMany - múltiples warehouses
     private List<Long> warehouseIds;
 
-    // Relación @OneToMany - inventarios con location y warehouse
     private List<InventoryReqDTO> inventories;
 
     private String documentRef; // Campo adicional si lo necesitas

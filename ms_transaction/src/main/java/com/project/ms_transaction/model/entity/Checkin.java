@@ -3,17 +3,18 @@ package com.project.ms_transaction.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
 @Table
-@Data
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Checkin {
+public class Checkin extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,7 +26,7 @@ public class Checkin {
     String numberDocument;
     String description;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "document_id")
     Document document;
 
@@ -36,5 +37,8 @@ public class Checkin {
             inverseJoinColumns = @JoinColumn(name = "product_warehouse_id")
     )
     private Set<ProductWarehouse> productWarehouses = new HashSet<>();
+
+    @OneToMany(mappedBy = "checkin", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CheckinDetail> details = new ArrayList<>();
 
 }

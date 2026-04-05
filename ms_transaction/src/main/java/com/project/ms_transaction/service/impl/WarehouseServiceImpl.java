@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -51,18 +52,17 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public List<WarehouseRespDTO> warehouseList(String filter) {
-        List<Warehouse> warehouses;
-        if (filter != null && !filter.trim().isEmpty()) {
-            warehouses = warehouseRepository.search(filter.trim());
-        } else {
-            warehouses = warehouseRepository.findAll();
-        }
+        List<Object[]> results;
+        if(filter == null || filter.equals("")) {
+            results = warehouseRepository.findAll().stream().map(w -> new Object[]{w.getCode(), w.getName()}).collect(Collectors.toList());
+        } else
+             results = warehouseRepository.search(filter);
 
-        return warehouses.stream()
-                .map(wh -> new WarehouseRespDTO(
-                        wh.getCode(),
-                        wh.getName()
+        return results.stream()
+                .map(obj -> new WarehouseRespDTO(
+                        (String) obj[0], // code
+                        (String) obj[1]  // name
                 ))
-                .toList();
+                .collect(Collectors.toList());
     }
 }

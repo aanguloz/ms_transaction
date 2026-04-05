@@ -1,11 +1,19 @@
 package com.project.ms_transaction.model.dto.response;
 
+import com.project.ms_transaction.model.dto.CheckinDocumentDTO;
 import com.project.ms_transaction.model.dto.CheckinProductDTO;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
+@Data
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class CheckInRespDTO {
 
     private Long id;

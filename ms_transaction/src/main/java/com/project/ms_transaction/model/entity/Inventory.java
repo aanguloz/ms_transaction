@@ -10,6 +10,7 @@ import java.time.Instant;
 @Data
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Inventory {
