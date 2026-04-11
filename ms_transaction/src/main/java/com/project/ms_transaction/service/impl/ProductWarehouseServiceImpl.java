@@ -4,6 +4,7 @@ import com.project.ms_transaction.model.dto.request.InventoryReqDTO;
 import com.project.ms_transaction.model.dto.request.ProductWarehouseReqDTO;
 import com.project.ms_transaction.model.dto.response.ProductWarehouseRespDTO;
 import com.project.ms_transaction.model.entity.Inventory;
+import com.project.ms_transaction.model.entity.Product;
 import com.project.ms_transaction.model.entity.ProductWarehouse;
 import com.project.ms_transaction.model.entity.Warehouse;
 import com.project.ms_transaction.repository.*;
@@ -23,9 +24,10 @@ public class ProductWarehouseServiceImpl implements ProductWarehouseService {
     private final ProductWarehouseRepository productWarehouseRepository;
     private final InventoryRepository  inventoryRepository;
     private final WarehouseRepository warehouseRepository;
+    private final ProductRepository productRepository;
 
     @Override
-    public ProductWarehouse registerProduct(ProductWarehouseReqDTO productWarehouseReqDTO) {
+    public ProductWarehouse addProductWarehouse(ProductWarehouseReqDTO productWarehouseReqDTO) {
         if (productWarehouseReqDTO.getName() == null || productWarehouseReqDTO.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("El nombre del producto es requerido");
         }
@@ -41,6 +43,8 @@ public class ProductWarehouseServiceImpl implements ProductWarehouseService {
         Set<Warehouse> warehouses = mapWarehouses(warehouseIds, warehouseMap);
         productWarehouse.setWarehouses(warehouses);
 
+        Product baseProduct = syncWithBaseProduct(productWarehouse);
+
         ProductWarehouse savedProductWarehouse = productWarehouseRepository.save(productWarehouse);
 
         if (productWarehouseReqDTO.getInventories() != null && !productWarehouseReqDTO.getInventories().isEmpty()) {
@@ -54,13 +58,34 @@ public class ProductWarehouseServiceImpl implements ProductWarehouseService {
         return savedProductWarehouse;
     }
 
+    private Product syncWithBaseProduct(ProductWarehouse productWarehouse) {
+        // Intentar buscar por nombre (o usar un campo único como SKU si existe)
+        Product baseProduct = productRepository.getProductByName(productWarehouse.getName());
+
+        if (baseProduct == null) {
+            // Crear nuevo producto base
+            baseProduct = new Product();
+            baseProduct.setName(productWarehouse.getName());
+            baseProduct.setDescription(productWarehouse.getDescription());
+            baseProduct.setIsDeleted(false);
+        } else {
+            // Actualizar descripción si cambió
+            if (productWarehouse.getDescription() != null &&
+                    !productWarehouse.getDescription().equals(baseProduct.getDescription())) {
+                baseProduct.setDescription(productWarehouse.getDescription());
+            }
+        }
+
+        return productRepository.save(baseProduct);
+    }
+
     @Override
-    public ProductWarehouse modifyProduct(ProductWarehouseReqDTO productWarehouseReqDTO) {
+    public ProductWarehouse modifyProductWarehouse(ProductWarehouseReqDTO productWarehouseReqDTO) {
         if (productWarehouseReqDTO.getId() == null) {
             throw new IllegalArgumentException("ID del producto es requerido para actualización");
         }
 
-        return registerProduct(productWarehouseReqDTO);
+        return addProductWarehouse(productWarehouseReqDTO);
     }
 
     @Override
@@ -229,15 +254,5 @@ public class ProductWarehouseServiceImpl implements ProductWarehouseService {
             return ((java.time.LocalDate) dateValue).toString();
         }
         return dateValue.toString();
-    }
-
-    private InventoryReqDTO convertInventoryToDTO(Inventory inventory) {
-        InventoryReqDTO dto = new InventoryReqDTO();
-        dto.setId(inventory.getId());
-        dto.setQuantity(inventory.getQuantity());
-        dto.setLocation(inventory.getLocation());
-        dto.setWarehouseId(inventory.getWarehouse() != null
-                ? inventory.getWarehouse().getId() : null);
-        return dto;
     }
 }

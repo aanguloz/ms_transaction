@@ -2,6 +2,7 @@ package com.project.ms_transaction.service.impl;
 
 import com.project.ms_transaction.model.dto.CheckInItemDTO;
 import com.project.ms_transaction.model.dto.CheckinListItem;
+import com.project.ms_transaction.model.dto.CheckinProductDTO;
 import com.project.ms_transaction.model.dto.request.CheckInReqDTO;
 import com.project.ms_transaction.model.dto.response.CheckInRespDTO;
 import com.project.ms_transaction.model.entity.*;
@@ -14,9 +15,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -161,7 +165,51 @@ public class CheckInServiceImpl implements CheckInService {
     }
 
     @Override
-    public List<CheckinListItem> getCheckinList(String filter) {
-        return List.of();
+    public List<CheckInRespDTO> getCheckinList(String filter) {
+        List<Object[]> results = checkInRepository.listCheckInDetails(filter);
+
+        // Group by checkin ID
+        Map<Long, List<Object[]>> groupedByCheckin = results.stream()
+                .collect(Collectors.groupingBy(row -> ((Number) row[0]).longValue()));
+
+        return groupedByCheckin.entrySet().stream()
+                .map(entry -> {
+                    Long checkinId = entry.getKey();
+                    List<Object[]> checkinRows = entry.getValue();
+
+                    // Get first row to extract checkin header info
+                    Object[] firstRow = checkinRows.get(0);
+
+                    // Build product list from all rows
+                    List<CheckinProductDTO> products = checkinRows.stream()
+                            .map(row -> new CheckinProductDTO(
+                                    ((Number) row[5]).longValue(),  // product_warehouse_id
+                                    (String) row[6],                 // product_name
+                                    (String) row[7],                 // warehouse_name
+                                    ((Number) row[8]).intValue(),    // quantity
+                                    (Double) row[9],                 // unit_cost
+                                    (Double) row[10],                // unit_price
+                                    (String) row[11],                // expiration_date
+                                    (String) row[12]                 // observation
+                            ))
+                            .toList();
+
+                    // Calculate totals
+                    BigDecimal totalValue = products.stream()
+                            .map(p -> BigDecimal.valueOf(p.getQuantity() * p.getUnitCost()))
+                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                    return CheckInRespDTO.builder()
+                            .id(checkinId)
+                            .code((String) firstRow[1])           // code
+                            .numberDocument((String) firstRow[2])  // numberDocument
+                            .description((String) firstRow[3])     // description
+                            .creationDate(Instant.ofEpochSecond(((Number) firstRow[4]).longValue()))
+                            .products(products)
+                            .totalProducts(products.size())
+                            .totalValue(totalValue)
+                            .build();
+                })
+                .toList();
     }
 }

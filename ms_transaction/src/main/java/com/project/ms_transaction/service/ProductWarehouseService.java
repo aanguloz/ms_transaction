@@ -8,9 +8,9 @@ import java.util.List;
 
 public interface ProductWarehouseService {
 
-    ProductWarehouse registerProduct(ProductWarehouseReqDTO productWarehouseReqDTO);
+    ProductWarehouse addProductWarehouse(ProductWarehouseReqDTO productWarehouseReqDTO);
 
-    ProductWarehouse modifyProduct(ProductWarehouseReqDTO productWarehouseReqDTO);
+    ProductWarehouse modifyProductWarehouse(ProductWarehouseReqDTO productWarehouseReqDTO);
 
     List<ProductWarehouseRespDTO> listProductByWarehouse(String filter);
 

@@ -30,11 +30,11 @@ public class ProductWarehouseController {
     }
 
     @PostMapping("/")
-    ResponseEntity<ApiResponseDTO<?>> addProduct(
+    ResponseEntity<ApiResponseDTO<?>> addProductWarehouse(
             @RequestBody ProductWarehouseReqDTO productWarehouseReqDTO
     ){
         try{
-            productWarehouseService.registerProduct(productWarehouseReqDTO);
+            productWarehouseService.addProductWarehouse(productWarehouseReqDTO);
             return ResponseEntity.status(201).body(new ApiResponseDTO<>(true, "ProductWarehouse was created.", null));
         } catch (RuntimeException e) {
             return ResponseEntity.status(500).body(new ApiResponseDTO<>(false, e.getMessage(), null));
@@ -42,11 +42,11 @@ public class ProductWarehouseController {
     }
 
     @PutMapping("/")
-    ResponseEntity<ApiResponseDTO<?>> updateProduct(
+    ResponseEntity<ApiResponseDTO<?>> modifyProductWarehouse(
             @RequestBody ProductWarehouseReqDTO productWarehouseReqDTO
     ){
         try{
-            productWarehouseService.modifyProduct(productWarehouseReqDTO);
+            productWarehouseService.modifyProductWarehouse(productWarehouseReqDTO);
             return ResponseEntity.status(200).body(new ApiResponseDTO<>(true, "ProductWarehouse was updated.", null));
 
         } catch (RuntimeException e) {

@@ -90,14 +90,11 @@ public class CheckInMapper {
 
             return CheckinProductDTO.builder()
                     .productWarehouseId(pw.getId())
-                    .productId(pw.getId()) // Ajustar si ProductWarehouse tiene productId separado
-                    .productCode(pw.getName()) // Ajustar según tu modelo real
                     .productName(pw.getName())
                     .warehouseName(warehouseName)
-                    .productLocation(detail.getLocation())
                     .quantity(detail.getQuantityReceived())
-                    .unitCost(pw.getPrice() != null ? BigDecimal.valueOf(pw.getPrice()) : null)
-                    .unitPrice(pw.getPrice() != null ? BigDecimal.valueOf(pw.getPrice()) : null)
+                    .unitCost(pw.getPrice() != null ? Double.parseDouble(pw.getPrice().toString()) : null)
+                    .unitPrice(pw.getPrice() != null ? Double.parseDouble(pw.getPrice().toString()) : null)
                     .expirationDate(pw.getExpirationDate())
                     .observation(detail.getObservation())
                     .build();

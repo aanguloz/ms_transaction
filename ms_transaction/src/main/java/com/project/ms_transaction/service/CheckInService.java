@@ -12,6 +12,6 @@ public interface CheckInService {
 
     CheckinListItem modifyCheckIn(CheckInReqDTO checkInReqDTO);
 
-    List<CheckinListItem> getCheckinList(String filter);
+    List<CheckInRespDTO> getCheckinList(String filter);
 
 }
