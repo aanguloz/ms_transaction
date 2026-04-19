@@ -20,38 +20,26 @@ public class ProductWarehouseController {
     @GetMapping("/")
     ResponseEntity<ApiResponseDTO<?>> getProductByWarehouse(
             @RequestParam(required = false) String filter
-    ){
-        try {
-            List<ProductWarehouseRespDTO> result = productWarehouseService.listProductByWarehouse(filter);
-            return ResponseEntity.status(200).body(new ApiResponseDTO<>(true, result, null));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(500).body(new ApiResponseDTO<>(false, e.getMessage(), null));
-        }
+    ) {
+        List<ProductWarehouseRespDTO> result = productWarehouseService.listProductByWarehouse(filter);
+        return ResponseEntity.status(200).body(new ApiResponseDTO<>(true, result, null));
     }
 
     @PostMapping("/")
     ResponseEntity<ApiResponseDTO<?>> addProductWarehouse(
             @RequestBody ProductWarehouseReqDTO productWarehouseReqDTO
-    ){
-        try{
-            productWarehouseService.addProductWarehouse(productWarehouseReqDTO);
-            return ResponseEntity.status(201).body(new ApiResponseDTO<>(true, "ProductWarehouse was created.", null));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(500).body(new ApiResponseDTO<>(false, e.getMessage(), null));
-        }
+    ) {
+        productWarehouseService.addProductWarehouse(productWarehouseReqDTO);
+        return ResponseEntity.status(201).body(new ApiResponseDTO<>(true, "ProductWarehouse was created.", null));
     }
 
     @PutMapping("/")
     ResponseEntity<ApiResponseDTO<?>> modifyProductWarehouse(
             @RequestBody ProductWarehouseReqDTO productWarehouseReqDTO
-    ){
-        try{
-            productWarehouseService.modifyProductWarehouse(productWarehouseReqDTO);
-            return ResponseEntity.status(200).body(new ApiResponseDTO<>(true, "ProductWarehouse was updated.", null));
+    ) {
+        productWarehouseService.modifyProductWarehouse(productWarehouseReqDTO);
+        return ResponseEntity.status(200).body(new ApiResponseDTO<>(true, "ProductWarehouse was updated.", null));
 
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(500).body(new ApiResponseDTO<>(false, e.getMessage(), null));
-        }
     }
 
 }

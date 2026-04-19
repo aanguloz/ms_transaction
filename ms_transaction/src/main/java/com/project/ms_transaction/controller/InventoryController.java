@@ -17,11 +17,7 @@ public class InventoryController {
 
     @GetMapping("/")
     ResponseEntity<ApiResponseDTO<?>> getInventory() {
-        try {
-            return ResponseEntity.ok(new ApiResponseDTO<>(true, inventoryService.inventoryList(), null));
-        } catch (Exception e) {
-            return ResponseEntity.ok(new ApiResponseDTO<>(false, null, e.getMessage()));
-        }
+        return ResponseEntity.ok(new ApiResponseDTO<>(true, inventoryService.inventoryList(), null));
     }
 
 }

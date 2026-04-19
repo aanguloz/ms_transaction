@@ -21,39 +21,24 @@ public class ProductController {
     @PostMapping("/")
     ResponseEntity<ApiResponseDTO<?>> addProduct(
             @RequestBody ProductReqDTO productReqDTO
-    )
-    {
-        try {
-            ProductRespDTO result = productService.createProduct(productReqDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO<>(true, result, null));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(500).body(new ApiResponseDTO<>(false, e.getMessage(), null));
-        }
+    ) {
+        ProductRespDTO result = productService.createProduct(productReqDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO<>(true, result, null));
     }
 
     @PutMapping("/")
     ResponseEntity<ApiResponseDTO<?>> modifyProduct(
             @RequestParam Long idProduct,
             @RequestBody ProductReqDTO productReqDTO
-    )
-    {
-        try {
-            ProductRespDTO result = productService.updateProduct(idProduct, productReqDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO<>(true, result, null));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(500).body(new ApiResponseDTO<>(false, e.getMessage(), null));
-        }
+    ) {
+        ProductRespDTO result = productService.updateProduct(idProduct, productReqDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO<>(true, result, null));
     }
 
     @GetMapping("/")
-    ResponseEntity<ApiResponseDTO<?>> getProduct()
-    {
-        try{
-            List<ProductRespDTO> result = productService.getAllProducts();
-            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDTO<>(true, result, null));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(500).body(new ApiResponseDTO<>(false, e.getMessage(), null));
-        }
+    ResponseEntity<ApiResponseDTO<?>> getProduct() {
+        List<ProductRespDTO> result = productService.getAllProducts();
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDTO<>(true, result, null));
     }
 
 }

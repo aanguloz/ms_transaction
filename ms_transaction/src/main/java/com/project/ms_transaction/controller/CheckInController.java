@@ -21,24 +21,16 @@ public class CheckInController {
     @PostMapping("/")
     ResponseEntity<ApiResponseDTO<?>> addCheckIn(
             @RequestBody CheckInReqDTO checkInReqDTO
-    ){
-        try{
-            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO<>(true, checkInService.addCheckIn(checkInReqDTO), null));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(500).body(new ApiResponseDTO<>(false, e.getMessage(), null));
-        }
+    ) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO<>(true, checkInService.addCheckIn(checkInReqDTO), null));
     }
 
     @GetMapping("/")
     ResponseEntity<ApiResponseDTO<?>> getListCheckIn(
             @RequestParam(required = false) String filter
-    ){
-        try{
-            List<CheckInRespDTO> result = checkInService.getCheckinList(filter);
-            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDTO<>(true, result, null));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(500).body(new ApiResponseDTO<>(false, e.getMessage(), null));
-        }
+    ) {
+        List<CheckInRespDTO> result = checkInService.getCheckinList(filter);
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDTO<>(true, result, null));
     }
 
 }

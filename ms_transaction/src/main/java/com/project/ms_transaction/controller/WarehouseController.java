@@ -21,24 +21,16 @@ public class WarehouseController {
     ResponseEntity<ApiResponseDTO<?>> searchWarehouse(
             @RequestParam(required = false) String filter
     ) {
-        try {
             List<WarehouseRespDTO>result = warehouseService.warehouseList(filter);
             return ResponseEntity.ok(new ApiResponseDTO<>(true, result, null));
-        } catch (Exception e) {
-            return ResponseEntity.ok(new ApiResponseDTO<>(false, e.getCause(), e.getMessage()));
-        }
     }
 
     @PostMapping("/")
     ResponseEntity<ApiResponseDTO<?>> addWarehouse(
             @RequestBody WareHouseReqDTO warehouseRespDTO
     ) {
-        try {
             warehouseService.createWareHouse(warehouseRespDTO);
             return ResponseEntity.ok(new ApiResponseDTO<>(true, "Warehouse Register", null));
-        } catch (Exception e) {
-            return ResponseEntity.ok(new ApiResponseDTO<>(false, e.getCause(), e.getMessage()));
-        }
     }
 
 }

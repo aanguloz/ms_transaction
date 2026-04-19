@@ -12,7 +12,6 @@ public interface CheckInRepository extends JpaRepository<Checkin, Long> {
     Checkin findByCode(String code);
 
     @Query(value = """
-
             SELECT
                  c.id,
                  c.code,
