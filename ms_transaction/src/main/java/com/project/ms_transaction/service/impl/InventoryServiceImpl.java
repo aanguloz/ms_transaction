@@ -1,6 +1,6 @@
 package com.project.ms_transaction.service.impl;
 
-import com.project.ms_transaction.model.dto.request.InventoryRespDTO;
+import com.project.ms_transaction.model.dto.response.InventoryRespDTO;
 import com.project.ms_transaction.repository.InventoryRepository;
 import com.project.ms_transaction.service.InventoryService;
 import lombok.RequiredArgsConstructor;

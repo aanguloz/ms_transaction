@@ -3,7 +3,9 @@ package com.project.ms_transaction.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -13,7 +15,7 @@ import java.util.Set;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Checkout {
+public class Checkout extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,9 +24,10 @@ public class Checkout {
     @Column(unique = true, nullable = false)
     String code;
 
+    String numberDocument;
     String description;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "document_id")
     Document document;
 
@@ -35,5 +38,8 @@ public class Checkout {
             inverseJoinColumns = @JoinColumn(name = "product_warehouse_id")
     )
     private Set<ProductWarehouse> productWarehouses = new HashSet<>();
+
+    @OneToMany(mappedBy = "checkout", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CheckoutDetail> details = new ArrayList<>();
 
 }

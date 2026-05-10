@@ -74,8 +74,6 @@ public class CheckInMapper {
                 .build();
     }
 
-
-
     private List<CheckinProductDTO> mapProducts(List<CheckinDetail> details) {
         if (details == null) return Collections.emptyList();
 

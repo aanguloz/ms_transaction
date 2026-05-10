@@ -1,6 +1,7 @@
 package com.project.ms_transaction.model.mapper;
 
 import com.project.ms_transaction.model.dto.CheckinDocumentDTO;
+import com.project.ms_transaction.model.dto.CheckoutDocumentDTO;
 import com.project.ms_transaction.model.dto.DocumentDTO;
 import com.project.ms_transaction.model.dto.DocumentSummaryDTO;
 import com.project.ms_transaction.model.entity.Document;
@@ -43,6 +44,17 @@ public class DocumentMapper {
                 .issuer(document.getName())              // String → String ✓
                 .issueDate(null)                         // LocalDate ✓
                 .build();
+    }
+
+    public CheckoutDocumentDTO toCheckoutDocumentDTO(Document document) {
+        if (document == null) { return null; }
+
+        return CheckoutDocumentDTO.builder().
+                id(document.getId()).
+                documentType(document.getCode()).
+                documentNumber(document.getCodeSunat()).
+                issuer(document.getName()).
+                issueDate(null).build();
     }
 
     public DocumentSummaryDTO toDocumentSummaryDTO(Document document) {

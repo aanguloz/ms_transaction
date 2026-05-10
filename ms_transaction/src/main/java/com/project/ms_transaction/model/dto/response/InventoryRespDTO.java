@@ -1,4 +1,4 @@
-package com.project.ms_transaction.model.dto.request;
+package com.project.ms_transaction.model.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

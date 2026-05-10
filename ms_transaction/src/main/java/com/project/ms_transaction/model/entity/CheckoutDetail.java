@@ -11,22 +11,21 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CheckinDetail {
+public class CheckoutDetail {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "checkin_id")
-    private Checkin checkin;
+    @JoinColumn(name = "checkout_id")
+    private Checkout checkout;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_warehouse_id")
     private ProductWarehouse productWarehouse;
 
-    // Aquí es donde guardas los datos que tienes en el DTO
-    private Integer quantityReceived;
+    private Integer quantityOuted;
     private String location;
     private String observation;
 
