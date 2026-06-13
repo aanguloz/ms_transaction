@@ -25,4 +25,12 @@ public class Company {
     private String email;
     private String phoneNumber;
 
+    public Company(String companyName, String rucNumber, String address, String email, String phoneNumber) {
+        this.companyName = companyName;
+        this.rucNumber = rucNumber;
+        this.address = address;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+    }
+
 }

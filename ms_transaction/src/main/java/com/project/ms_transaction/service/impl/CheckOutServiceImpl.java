@@ -64,7 +64,7 @@ public class CheckOutServiceImpl implements CheckOutService {
                                "Warehouse not found: " + item.getWarehouseId()));
 
                Inventory inventory = findOrCreateInventory(productWarehouse, warehouse);
-               inventory.setQuantity(inventory.getQuantity() + item.getQuantityOuted());
+               inventory.setQuantity(inventory.getQuantity() - item.getQuantityOuted());
                inventory.setLocation(item.getLocation() != null ? item.getLocation() : inventory.getLocation());
                inventory.setUpdateDate(Instant.now());
 

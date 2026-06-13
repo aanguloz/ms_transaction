@@ -17,9 +17,7 @@ public class PersonDTO {
 
     private String completeName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "document_id", nullable = false)
-    private Document typeDocument;
+    private IdentifierDocumentDTO typeDocument;
 
     private String numberDocument;
     private String phoneNumber;

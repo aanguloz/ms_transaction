@@ -8,9 +8,9 @@ import java.util.List;
 
 public interface ClientService {
 
-    void addClient(@RequestBody ClientReqDTO clientReqDTO);
+    ClientRespDTO addClient(@RequestBody ClientReqDTO clientReqDTO);
 
-    void modifyClient(@RequestBody ClientReqDTO clientReqDTO);
+    ClientRespDTO modifyClient(Long clientId, @RequestBody ClientReqDTO clientReqDTO);
 
     List<ClientRespDTO> getAllClients(String filter);
 

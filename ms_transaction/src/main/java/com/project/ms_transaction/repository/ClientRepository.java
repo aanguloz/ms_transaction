@@ -1,33 +1,33 @@
 package com.project.ms_transaction.repository;
 
+import com.project.ms_transaction.model.dto.response.ClientRespDTO;
 import com.project.ms_transaction.model.entity.Client;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ClientRepository extends JpaRepository<Client, Integer> {
 
-//    @Query(value = """
-//    select new com.tu.paquete.ClientRespDTO(
-//        case when c.complete_name is not null then c.complete_name else c.company_name END,
-//        c.identifier,
-//        c.address,
-//        c.email,
-//        c.phone
-//    )
-//    from public.client c
-//    where (:filter IS NULL OR :filter = ' '\s
-//        or lower(c.name) like concat('%', lower(:filter), '%')
-//        or lower(c.last_name) like concat('%', lower(:filter), '%')
-//        or lower(c.company_name) like concat('%', lower(:filter), '%')
-//        or lower(c.identifier) like concat('%', lower(:filter), '%'))
-//        )
-//    """, nativeQuery = true)
-//    List<Object[]> searchClient(@Param("filter") String filter);
-
-//    Optional<Client> findByIdentifier(String identifier);
-
+    @Query("""
+    SELECT new com.project.ms_transaction.model.dto.response.ClientRespDTO(
+        CASE WHEN p IS NOT NULL THEN p.completeName ELSE co.companyName END,
+        CASE WHEN p IS NOT NULL THEN p.numberDocument ELSE co.rucNumber END,
+        CASE WHEN p IS NOT NULL THEN p.address ELSE co.address END,
+        CASE WHEN p IS NOT NULL THEN p.email ELSE co.email END,
+        CASE WHEN p IS NOT NULL THEN p.phoneNumber ELSE co.phoneNumber END
+    )
+    FROM Client c
+    LEFT JOIN c.person p
+    LEFT JOIN c.company co
+    WHERE (
+        :filter IS NULL OR :filter = ''
+        OR LOWER(p.completeName) LIKE LOWER(CONCAT('%', :filter, '%'))
+        OR LOWER(p.numberDocument) LIKE LOWER(CONCAT('%', :filter, '%'))
+        OR LOWER(co.companyName) LIKE LOWER(CONCAT('%', :filter, '%'))
+        OR LOWER(co.rucNumber) LIKE LOWER(CONCAT('%', :filter, '%'))
+    )
+    """)
+    List<ClientRespDTO> searchClient(@Param("filter") String filter);
 }

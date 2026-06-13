@@ -1,4 +1,4 @@
-package com.project.ms_transaction.model.dto;
+package com.project.ms_transaction.model.dto.request;
 
 import com.project.ms_transaction.model.enums.DocumentType;
 import lombok.AllArgsConstructor;
@@ -16,6 +16,7 @@ public class DocumentDTO {
     String codeSunat;
     String name;
     String description;
+
     DocumentType documentType;
 
 }

@@ -14,7 +14,6 @@ public class DocumentMapper {
         if (document == null) {return null;}
 
         return DocumentDTO.builder()
-                .id(document.getId())
                 .code(document.getCode())
                 .codeSunat(document.getCodeSunat())
                 .name(document.getName())
@@ -26,7 +25,6 @@ public class DocumentMapper {
         if (documentDTO == null) {return null;}
 
         return Document.builder()
-                .id(documentDTO.getId())
                 .code(documentDTO.getCode())
                 .codeSunat(documentDTO.getCodeSunat())
                 .name(documentDTO.getName())

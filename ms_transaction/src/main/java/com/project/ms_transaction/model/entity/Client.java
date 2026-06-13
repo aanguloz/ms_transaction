@@ -48,4 +48,13 @@ public class Client {
         return person != null ? person.getNumberDocument() : (company != null ? company.getRucNumber() : null);
     }
 
+    public Client(Person person, Boolean isActive) {
+        this.person = person;
+        this.isActive = isActive;
+    }
+
+    public Client(Company company, Boolean isActive) {
+        this.company = company;
+        this.isActive = isActive;
+    }
 }
