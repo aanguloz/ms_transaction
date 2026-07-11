@@ -19,6 +19,8 @@ public class CheckOutReqDTO {
 
     private Long documentId;
 
+    private Long clientId;
+
     private List<CheckOutItemDTO> items;
 
 }

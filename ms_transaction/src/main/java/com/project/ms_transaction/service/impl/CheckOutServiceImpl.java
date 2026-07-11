@@ -1,8 +1,6 @@
 package com.project.ms_transaction.service.impl;
 
-import com.project.ms_transaction.model.dto.CheckOutItemDTO;
-import com.project.ms_transaction.model.dto.CheckOutListItem;
-import com.project.ms_transaction.model.dto.CheckoutProductDTO;
+import com.project.ms_transaction.model.dto.*;
 import com.project.ms_transaction.model.dto.request.CheckOutReqDTO;
 import com.project.ms_transaction.model.dto.response.CheckOutRespDTO;
 import com.project.ms_transaction.model.entity.*;
@@ -15,11 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,57 +28,120 @@ public class CheckOutServiceImpl implements CheckOutService {
     private final InventoryRepository inventoryRepository;
     private final MovementRepository movementRepository;
     private final MovementDetailRepository movementDetailRepository;
+    private final ClientRepository clientRepository;
     private final CheckOutMapper mapper;
 
     @Override
     @Transactional
     public CheckOutRespDTO addCheckOut(CheckOutReqDTO dto) {
-        Checkout checkout = mapper.toEntity(dto);
-        checkout.setCreatedAt(Instant.now());
+        Checkout checkout = initializeCheckout(dto);
 
-        List<CheckoutDetail> saveDetaails = new ArrayList<>();
-        List<MovementDetail> movementDetails = new ArrayList<>();
+        Map<Long, ProductWarehouse> productWarehouseMap = loadProductWarehouses(dto);
+        Map<Long, Warehouse> warehouseMap = loadWarehouses(dto);
 
-        for (CheckOutItemDTO item : dto.getItems()) {
-            ProductWarehouse productWarehouse = productWarehouseRepository.findById(item.getProductWarehouseId())
-                    .orElseThrow(() -> new EntityNotFoundException(
-                            "ProductWarehouse not found: " + item.getProductWarehouseId()));
-
-            CheckoutDetail detail = new CheckoutDetail();
-            detail.setCheckout(checkout);
-            detail.setProductWarehouse(productWarehouse);
-            detail.setQuantityOuted(item.getQuantityOuted());
-            detail.setLocation(item.getLocation());
-            detail.setObservation(item.getObservation());
-
-            checkout.getDetails().add(detail);
-            saveDetaails.add(detail);
-
-            if(item.getWarehouseId() != null){
-               Warehouse warehouse = warehouseRepository.findById(item.getWarehouseId())
-                       .orElseThrow(() -> new EntityNotFoundException(
-                               "Warehouse not found: " + item.getWarehouseId()));
-
-               Inventory inventory = findOrCreateInventory(productWarehouse, warehouse);
-               inventory.setQuantity(inventory.getQuantity() - item.getQuantityOuted());
-               inventory.setLocation(item.getLocation() != null ? item.getLocation() : inventory.getLocation());
-               inventory.setUpdateDate(Instant.now());
-
-               MovementDetail movDetail = createMovementDetail(
-                       productWarehouse,
-                       warehouse,
-                       item,
-                       null
-               );
-               movementDetails.add(movDetail);
-            }
-        }
+        List<MovementDetail> movementDetails = processCheckoutItems(
+                checkout, dto.getItems(), productWarehouseMap, warehouseMap
+        );
 
         Checkout saved = checkoutRepository.save(checkout);
-
         registerMovementWithDetails(saved, movementDetails);
 
         return mapper.toRespDTO(saved);
+    }
+
+    private Checkout initializeCheckout(CheckOutReqDTO dto) {
+        Checkout checkout = mapper.toEntity(dto);
+        checkout.setCreatedAt(Instant.now());
+        return checkout;
+    }
+
+    private Map<Long, ProductWarehouse> loadProductWarehouses(CheckOutReqDTO dto) {
+        List<Long> ids = dto.getItems().stream()
+                .map(CheckOutItemDTO::getProductWarehouseId)
+                .distinct()
+                .toList();
+
+        return productWarehouseRepository.findAllById(ids).stream()
+                .collect(Collectors.toMap(ProductWarehouse::getId, pw -> pw));
+    }
+
+    private Map<Long, Warehouse> loadWarehouses(CheckOutReqDTO dto) {
+        List<Long> ids = dto.getItems().stream()
+                .map(CheckOutItemDTO::getWarehouseId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        return warehouseRepository.findAllById(ids).stream()
+                .collect(Collectors.toMap(Warehouse::getId, w -> w));
+    }
+
+    private List<MovementDetail> processCheckoutItems(
+            Checkout checkout,
+            List<CheckOutItemDTO> items,
+            Map<Long, ProductWarehouse> productWarehouseMap,
+            Map<Long, Warehouse> warehouseMap) {
+
+        List<MovementDetail> movementDetails = new ArrayList<>();
+
+        for (CheckOutItemDTO item : items) {
+            ProductWarehouse productWarehouse = getProductWarehouse(item, productWarehouseMap);
+
+            CheckoutDetail detail = createCheckoutDetail(checkout, productWarehouse, item);
+            checkout.getDetails().add(detail);
+
+            if (item.getWarehouseId() != null) {
+                Warehouse warehouse = getWarehouse(item, warehouseMap);
+                Inventory inventory = findOrCreateInventory(productWarehouse, warehouse);
+                validateAndUpdateInventory(inventory, item, productWarehouse);
+
+                MovementDetail movDetail = createMovementDetail(productWarehouse, warehouse, item, null);
+                movementDetails.add(movDetail);
+            }
+        }
+
+        return movementDetails;
+    }
+
+    private ProductWarehouse getProductWarehouse(CheckOutItemDTO item, Map<Long, ProductWarehouse> map) {
+        ProductWarehouse pw = map.get(item.getProductWarehouseId());
+        if (pw == null) {
+            throw new EntityNotFoundException("ProductWarehouse not found: " + item.getProductWarehouseId());
+        }
+        return pw;
+    }
+
+    private Warehouse getWarehouse(CheckOutItemDTO item, Map<Long, Warehouse> map) {
+        Warehouse w = map.get(item.getWarehouseId());
+        if (w == null) {
+            throw new EntityNotFoundException("Warehouse not found: " + item.getWarehouseId());
+        }
+        return w;
+    }
+
+    private CheckoutDetail createCheckoutDetail(Checkout checkout, ProductWarehouse pw, CheckOutItemDTO item) {
+        CheckoutDetail detail = new CheckoutDetail();
+        detail.setCheckout(checkout);
+        detail.setProductWarehouse(pw);
+        detail.setQuantityOuted(item.getQuantityOuted());
+        detail.setLocation(item.getLocation());
+        detail.setObservation(item.getObservation());
+        return detail;
+    }
+
+    private void validateAndUpdateInventory(Inventory inventory, CheckOutItemDTO item, ProductWarehouse pw) {
+        if (inventory.getQuantity().compareTo(item.getQuantityOuted()) < 0) {
+            throw new RuntimeException(String.format(
+                    "Stock insuficiente para %s. Disponible: %d, Solicitado: %d",
+                    pw.getName(),
+                    inventory.getQuantity(),
+                    item.getQuantityOuted()
+            ));
+        }
+
+        inventory.setQuantity(inventory.getQuantity() - (item.getQuantityOuted()));
+        inventory.setLocation(item.getLocation() != null ? item.getLocation() : inventory.getLocation());
+        inventory.setUpdateDate(Instant.now());
     }
 
     private Inventory findOrCreateInventory(ProductWarehouse productWarehouse, Warehouse warehouse) {
@@ -108,7 +167,7 @@ public class CheckOutServiceImpl implements CheckOutService {
                 .productWarehouse(productWarehouse)
                 .productLocation(item.getLocation())
                 .quantity(item.getQuantityOuted())
-                .unitCost(item.getQuantityOuted() / productWarehouse.getPrice())
+                .unitCost(productWarehouse.getPrice())
                 .unitPrice(productWarehouse.getPrice())
                 .expirationDate(productWarehouse.getExpirationDate())
                 .build();
@@ -119,31 +178,28 @@ public class CheckOutServiceImpl implements CheckOutService {
             return;
         }
 
-        Warehouse warehouseOrigin = details.get(0).getWarehouse();
+        Map<Warehouse, List<MovementDetail>> detailsByWarehouse = details.stream()
+                .collect(Collectors.groupingBy(MovementDetail::getWarehouse));
 
-        Movement movement = Movement.builder()
-                .type(MovementType.OUT)
-                .checkIn(null)
-                .checkOut(checkout)
-                .warehouseOrigin(warehouseOrigin)
-                .warehouseDestiny(null)
-                .documentReference(checkout.getNumberDocument())
-                .observation(details.get(0).getProductLocation()) // o una observación general
-                .creationDate(checkout.getCreatedAt())
-                .build();
+        for (Map.Entry<Warehouse, List<MovementDetail>> entry : detailsByWarehouse.entrySet()) {
+            Warehouse warehouseOrigin = entry.getKey();
+            List<MovementDetail> warehouseDetails = entry.getValue();
 
-        Movement savedMovement = movementRepository.save(movement);
+            Movement movement = Movement.builder()
+                    .type(MovementType.OUT)
+                    .checkOut(checkout)
+                    .warehouseOrigin(warehouseOrigin)
+                    .documentReference(checkout.getNumberDocument())
+                    .observation("Salida de múltiples productos desde " + warehouseOrigin.getName())
+                    .creationDate(checkout.getCreatedAt())
+                    .build();
 
-        for (MovementDetail detail : details) {
-            detail.setMovement(savedMovement);
+            Movement savedMovement = movementRepository.save(movement);
 
-            if (detail.getUnitCost() == null) {
-                detail.setUnitCost(detail.getProductWarehouse().getPrice());
-            }
-            if (detail.getUnitPrice() == null) {
-                detail.setUnitPrice(detail.getProductWarehouse().getPrice());
-            }
-            movementDetailRepository.save(detail);
+            warehouseDetails.forEach(detail -> {
+                detail.setMovement(savedMovement);
+                movementDetailRepository.save(detail);
+            });
         }
     }
 
@@ -154,41 +210,47 @@ public class CheckOutServiceImpl implements CheckOutService {
 
     @Override
     public List<CheckOutRespDTO> getCheckOutList(String filter) {
-        List<Object[]> results = checkoutRepository.listCheckOutDetails(filter);
+        // Sin Tuple, sin mapeo manual intermedio
+        List<CheckOutDetailProjectionDTO> projections = checkoutRepository.listCheckOutDetails(filter);
 
-        Map<Long, List<Object[]>> groupedByCheckout = results.stream()
-                .collect(Collectors.groupingBy(row -> ((Number) row[0]).longValue()));
-
-        return groupedByCheckout.entrySet().stream()
+        return projections.stream()
+                .collect(Collectors.groupingBy(CheckOutDetailProjectionDTO::getId))
+                .entrySet().stream()
                 .map(entry -> {
-                    Long checkoutId = entry.getKey();
-                    List<Object[]> checkoutRows = entry.getValue();
+                    List<CheckOutDetailProjectionDTO> rows = entry.getValue();
+                    CheckOutDetailProjectionDTO first = rows.get(0);
 
-                    Object[] firstRow = checkoutRows.get(0);
-
-                    List<CheckoutProductDTO> products = checkoutRows.stream()
+                    List<CheckoutProductDTO> products = rows.stream()
                             .map(row -> new CheckoutProductDTO(
-                                    ((Number) row[5]).longValue(), // productWarehouseId
-                                    (String) row[6], // productName
-                                    (String) row[7], // warehouseName
-                                    ((Number) row[8]).intValue(), // quantity
-                                    ((Number) row[9]).doubleValue(), // unitCost
-                                    ((Number) row[10]).doubleValue(), // unitPrice
-                                    (String) row[11], // expirationDate
-                                    (String) row[12] // observation
+                                    row.getProductWarehouseId(),
+                                    row.getProductName(),
+                                    row.getWarehouseName(),
+                                    row.getQuantity(),
+                                    row.getUnitCost(),
+                                    row.getUnitPrice(),
+                                    row.getExpirationDate(),
+                                    row.getObservation()
                             ))
                             .toList();
 
-                    BigDecimal totalValue = products.stream()
-                            .map(p -> BigDecimal.valueOf(p.getQuantity() * p.getUnitCost()))
-                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+                    double totalValue = products.stream()
+                            .mapToDouble(p -> p.getQuantity() * p.getUnitCost())
+                            .sum();
 
                     return CheckOutRespDTO.builder()
-                            .id(checkoutId)
-                            .code((String) firstRow[1])
-                            .numberDocument((String) firstRow[2])
-                            .description((String) firstRow[3])
-                            .creationDate(Instant.ofEpochSecond(((Number) firstRow[4]).longValue()))
+                            .id(entry.getKey())
+                            .code(first.getCode())
+                            .document(new CheckoutDocumentDTO(
+                                    first.getId(),
+                                    first.getTypeDocument(),
+                                    first.getNumberDocument(),
+                                    null,
+                                    LocalDate.now()
+                            ))
+                            .numberDocument(first.getNumberDocument())
+                            .description(first.getDescription())
+                            .clientId(first.getClient())
+                            .creationDate(Instant.ofEpochSecond(first.getCreateEpoch()))
                             .products(products)
                             .totalProducts(products.size())
                             .totalValue(totalValue)

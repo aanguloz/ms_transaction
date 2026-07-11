@@ -4,7 +4,6 @@ import com.project.ms_transaction.model.dto.CheckoutDocumentDTO;
 import com.project.ms_transaction.model.dto.CheckoutProductDTO;
 import lombok.*;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
@@ -20,6 +19,7 @@ public class CheckOutRespDTO {
     private String code;
     private String numberDocument;
     private String description;
+    private Long clientId;
     private Instant creationDate;
 
     private CheckoutDocumentDTO document;
@@ -27,6 +27,6 @@ public class CheckOutRespDTO {
     private List<CheckoutProductDTO> products;
 
     private Integer totalProducts;
-    private BigDecimal totalValue;
+    private Double totalValue;
 
 }

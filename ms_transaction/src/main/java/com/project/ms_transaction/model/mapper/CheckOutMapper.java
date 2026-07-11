@@ -34,6 +34,12 @@ public class CheckOutMapper {
             checkout.setDocument(docRef);
         }
 
+        if(dto.getClientId() != null){
+            Client client = new Client();
+            client.setId(dto.getClientId());
+            checkout.setClient(client);
+        }
+
         checkout.setDetails(new ArrayList<>());
         checkout.setProductWarehouses(new HashSet<>());
 
@@ -48,6 +54,7 @@ public class CheckOutMapper {
                 .code(checkout.getCode())
                 .numberDocument(checkout.getNumberDocument())
                 .description(checkout.getDescription())
+                .clientId(checkout.getClient().getId())
                 .creationDate(checkout.getCreatedAt())
                 .document(documentMapper.toCheckoutDocumentDTO(checkout.getDocument()))
                 .products(mapProducts(checkout.getDetails()))
@@ -81,17 +88,22 @@ public class CheckOutMapper {
         }).filter(dto -> dto != null).collect(Collectors.toList());
     }
 
-    private BigDecimal calculateTotalValue(List<CheckoutDetail> details) {
-        if (details == null) return BigDecimal.ZERO;
+    private Double calculateTotalValue(List<CheckoutDetail> details) {
+        if (details == null || details.isEmpty()) {
+            return 0.0;
+        }
 
-        return details.stream()
+        BigDecimal total = details.stream()
                 .map(detail -> {
                     ProductWarehouse pw = detail.getProductWarehouse();
-                    if (pw == null || pw.getPrice() == null || detail.getQuantityOuted() == null)
+                    if (pw == null || pw.getPrice() == null || detail.getQuantityOuted() == null) {
                         return BigDecimal.ZERO;
+                    }
                     return BigDecimal.valueOf(pw.getPrice())
                             .multiply(BigDecimal.valueOf(detail.getQuantityOuted()));
                 })
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return total.doubleValue();
     }
 }

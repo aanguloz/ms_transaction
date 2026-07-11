@@ -6,10 +6,7 @@ import com.project.ms_transaction.service.CheckOutService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/check-out")
@@ -23,6 +20,13 @@ public class CheckOutController {
             @RequestBody CheckOutReqDTO checkOutReqDTO
     ){
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO<>(true, checkOutService.addCheckOut(checkOutReqDTO), null));
+    }
+
+    @GetMapping("/")
+    ResponseEntity<ApiResponseDTO<?>> getCheckOut(
+            @RequestParam String filter
+    ){
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDTO<>(true, checkOutService.getCheckOutList(filter), null));
     }
 
 }
