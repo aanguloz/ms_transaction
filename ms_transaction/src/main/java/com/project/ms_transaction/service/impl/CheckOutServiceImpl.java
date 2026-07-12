@@ -241,7 +241,7 @@ public class CheckOutServiceImpl implements CheckOutService {
                             .id(entry.getKey())
                             .code(first.getCode())
                             .document(new CheckoutDocumentDTO(
-                                    first.getId(),
+                                    first.getDocument(),
                                     first.getTypeDocument(),
                                     first.getNumberDocument(),
                                     null,

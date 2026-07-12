@@ -1,6 +1,7 @@
 package com.project.ms_transaction.service.impl;
 
 import com.project.ms_transaction.model.dto.CheckInItemDTO;
+import com.project.ms_transaction.model.dto.CheckinDocumentDTO;
 import com.project.ms_transaction.model.dto.CheckinListItem;
 import com.project.ms_transaction.model.dto.CheckinProductDTO;
 import com.project.ms_transaction.model.dto.request.CheckInReqDTO;
@@ -11,6 +12,7 @@ import com.project.ms_transaction.model.mapper.CheckInMapper;
 import com.project.ms_transaction.repository.*;
 import com.project.ms_transaction.service.CheckInService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.Tuple;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -166,45 +168,46 @@ public class CheckInServiceImpl implements CheckInService {
 
     @Override
     public List<CheckInRespDTO> getCheckinList(String filter) {
-        List<Object[]> results = checkInRepository.listCheckInDetails(filter);
+        List<Tuple> results = checkInRepository.listCheckInDetails(filter);
 
-        // Group by checkin ID
-        Map<Long, List<Object[]>> groupedByCheckin = results.stream()
-                .collect(Collectors.groupingBy(row -> ((Number) row[0]).longValue()));
+        Map<Long, List<Tuple>> groupedByCheckin = results.stream()
+                .collect(Collectors.groupingBy(tuple -> tuple.get("id", Long.class)));
 
         return groupedByCheckin.entrySet().stream()
                 .map(entry -> {
                     Long checkinId = entry.getKey();
-                    List<Object[]> checkinRows = entry.getValue();
+                    List<Tuple> checkinRows = entry.getValue();
+                    Tuple firstRow = checkinRows.get(0);
 
-                    // Get first row to extract checkin header info
-                    Object[] firstRow = checkinRows.get(0);
-
-                    // Build product list from all rows
                     List<CheckinProductDTO> products = checkinRows.stream()
                             .map(row -> new CheckinProductDTO(
-                                    ((Number) row[5]).longValue(),  // product_warehouse_id
-                                    (String) row[6],                 // product_name
-                                    (String) row[7],                 // warehouse_name
-                                    ((Number) row[8]).intValue(),    // quantity
-                                    (Double) row[9],                 // unit_cost
-                                    (Double) row[10],                // unit_price
-                                    (String) row[11],                // expiration_date
-                                    (String) row[12]                 // observation
+                                    row.get("product_warehouse_id", Long.class),
+                                    row.get("product_name", String.class),
+                                    row.get("warehouse_name", String.class),
+                                    row.get("quantity", Integer.class),
+                                    row.get("unit_cost", Double.class),
+                                    row.get("unit_price", Double.class),
+                                    row.get("expiration_date", String.class),
+                                    row.get("observation", String.class)
                             ))
                             .toList();
 
-                    // Calculate totals
                     BigDecimal totalValue = products.stream()
-                            .map(p -> BigDecimal.valueOf(p.getQuantity() * p.getUnitCost()))
+                            .map(p -> BigDecimal.valueOf(p.getQuantity())
+                                    .multiply(BigDecimal.valueOf(p.getUnitCost())))
                             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
                     return CheckInRespDTO.builder()
-                            .id(checkinId)
-                            .code((String) firstRow[1])           // code
-                            .numberDocument((String) firstRow[2])  // numberDocument
-                            .description((String) firstRow[3])     // description
-                            .creationDate(Instant.ofEpochSecond(((Number) firstRow[4]).longValue()))
+                            .id(firstRow.get("id", Long.class))
+                            .code(firstRow.get("code", String.class))
+                            .numberDocument(firstRow.get("number_document", String.class))
+                            .description(firstRow.get("description", String.class))
+                            .creationDate(Instant.ofEpochSecond(firstRow.get("created_at_epoch", Long.class)))
+                            .document(CheckinDocumentDTO.builder()
+                                    .id(firstRow.get("document", Long.class))
+                                    .documentType(firstRow.get("type", String.class))
+                                    .documentNumber(firstRow.get("number_document", String.class))
+                                    .build())
                             .products(products)
                             .totalProducts(products.size())
                             .totalValue(totalValue)
