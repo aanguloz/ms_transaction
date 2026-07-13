@@ -1,6 +1,6 @@
 package com.project.ms_transaction.controller;
 
-import com.project.ms_transaction.model.dto.ApiResponseDTO;
+import com.project.ms_transaction.model.dto.record.ApiResponseDTO;
 import com.project.ms_transaction.model.dto.request.ProductWarehouseReqDTO;
 import com.project.ms_transaction.model.dto.response.ProductWarehouseRespDTO;
 import com.project.ms_transaction.service.ProductWarehouseService;

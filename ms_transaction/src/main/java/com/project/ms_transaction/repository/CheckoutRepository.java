@@ -1,8 +1,7 @@
 package com.project.ms_transaction.repository;
 
-import com.project.ms_transaction.model.dto.CheckOutDetailProjectionDTO;
+import com.project.ms_transaction.model.dto.projection.CheckOutDetailProjectionDTO;
 import com.project.ms_transaction.model.entity.Checkout;
-import jakarta.persistence.Tuple;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

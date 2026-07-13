@@ -1,6 +1,7 @@
 package com.project.ms_transaction.service.impl;
 
 import com.project.ms_transaction.model.dto.*;
+import com.project.ms_transaction.model.dto.projection.CheckOutDetailProjectionDTO;
 import com.project.ms_transaction.model.dto.request.CheckOutReqDTO;
 import com.project.ms_transaction.model.dto.response.CheckOutRespDTO;
 import com.project.ms_transaction.model.entity.*;

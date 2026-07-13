@@ -1,4 +1,4 @@
-package com.project.ms_transaction.model.dto;
+package com.project.ms_transaction.model.dto.projection;
 
 //public record CheckOutDetailProjectionDTO(
 //        Long id,
@@ -15,8 +15,6 @@ package com.project.ms_transaction.model.dto;
 //        String expirationDate,
 //        String observation
 //) {}
-
-import com.project.ms_transaction.model.enums.DocumentType;
 
 public interface CheckOutDetailProjectionDTO {
     Long getId();
