@@ -23,4 +23,6 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
             inner join public.warehouse w on w.id = i.warehouse_id
             """, nativeQuery = true)
     List<Object[]> getInventory();
+
+    List<Inventory> findByProductWarehouseIdIn(List<Long> productWarehouseIds);
 }

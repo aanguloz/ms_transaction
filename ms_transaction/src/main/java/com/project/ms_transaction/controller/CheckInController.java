@@ -5,6 +5,7 @@ import com.project.ms_transaction.model.dto.request.CheckInReqDTO;
 import com.project.ms_transaction.model.dto.response.CheckInRespDTO;
 import com.project.ms_transaction.service.CheckInService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,9 +28,10 @@ public class CheckInController {
 
     @GetMapping("/")
     ResponseEntity<ApiResponseDTO<?>> getListCheckIn(
-            @RequestParam(required = false) String filter
+            @RequestParam(required = false) String filter,
+            Pageable pageable
     ) {
-        List<CheckInRespDTO> result = checkInService.getCheckinList(filter);
+        List<CheckInRespDTO> result = checkInService.getCheckinList(filter, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDTO<>(true, result, null));
     }
 
